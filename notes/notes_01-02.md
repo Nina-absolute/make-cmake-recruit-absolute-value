@@ -31,7 +31,7 @@
 如果把“我要得到什么、依赖什么、怎么得到”这些写成规则，让 `Make` 自动判断哪些步骤需要执行。那么就不用自己敲编译命令/背哪些文件还没有编译了。
 
 ---
-### 3. 关于 C
+### 3. 关于 Make
 1.  CC = C compiler = C 编译器变量，存放编译器名，方便替换编译器（gcc -> 实际的编译器文件，还是有点类似于常量展开）
 
 2. CFLAGS = C flags = C 编译选项变量，存放编译选项，相当于编译器的设置（？
@@ -50,32 +50,27 @@
 
 5. `$^` = Dollar Caret = 所有依赖。
 
-6. 增量构建
+#### 6. 增量构建
 -> 本质上是`Make`通过比较目标和依赖的修改时间，实现对最近修改的文件的构建。
+依赖更新：说明源文件比目标文件新，应该要编译链接了。
 
 
 ---
 ### 4. 关于 CMake
 
-- `CMake` — `Cross-platform Make` — 跨平台构建系统生成器 — 读取 `CMakeLists.txt` 生成 `Makefile` 或 `Ninja` 文件 — 像“建筑图纸生成器” — `cmake -S . -B build` — 生成构建系统。
-- `CMakeLists.txt` — `CMake Lists Text` — CMake 配置文件 — 描述项目、目标、头文件路径 — 像“建筑图纸要求” — `cmake -S . -B build` — 作为 CMake 输入。
-- `cmake_minimum_required` — `CMake Minimum Required` — 指定最低 CMake 版本 — 确保命令兼容 — 像“最低配置要求” — `cmake_minimum_required(VERSION 3.16)` — 声明版本要求。
-- `project` — `Project` — 定义项目名和语言 — 设置项目基本信息 — 像给工程起名字 — `project(calculator LANGUAGES C)` — 定义项目。
-- `add_executable` — `Add Executable` — 添加可执行目标 — 指定源文件生成可执行文件 — 像“要组装哪辆车” — `add_executable(calculator src/main.c src/calculator.c)` — 定义可执行目标。
-- `target_include_directories` — `Target Include Directories` — 指定目标头文件搜索路径 — 告诉编译器去哪里找头文件 — 像告诉图书馆管理员去哪个书架 — `target_include_directories(calculator PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)` — 解决头文件路径。
-- `PRIVATE` — `Private` — 私有作用域 — 只影响当前目标 — 像“只给这辆车用” — `PRIVATE` — 限定头文件路径作用范围。
-- `${CMAKE_CURRENT_SOURCE_DIR}` — `CMake Current Source Directory` — 当前源码目录变量 — 展开为当前 `CMakeLists.txt` 所在目录 — 像“当前图纸所在文件夹” — `${CMAKE_CURRENT_SOURCE_DIR}/include` — 构造头文件绝对路径。
+#### 基本概念类
+1. `CMake` 
+= Cross-platform Make 跨平台构建系统生成器
 
-### 核心命令参数详解
+- 读取 `CMakeLists.txt`，生成 `Makefile` 或 `Ninja` 文件，再由 `make` 或 `ninja` 调用 `gcc`。
+-> 本质上是读取同样文件，然后根据不同平台特性，生成可以被不同编译器接收的“规则”（？，反正就是一种类似于说明构建方式的配置文件吧🤔
 
-- `cmake` — `CMake` — 构建系统生成器 — 读取 `CMakeLists.txt` 生成构建系统 — 像“图纸生成器” — `cmake -S . -B build` — 生成构建系统。
-- `-S` — `Source` — 源码目录 — 指定 `CMakeLists.txt` 所在目录 — 像“图纸在哪里” — `cmake -S . -B build` — 指定源码目录为当前目录。
-- `.` — `Current directory` — 当前目录 — 表示当前工作目录 — 像“就在这里” — `cmake -S . -B build` — 当前目录作为源码目录。
-- `-B` — `Build` — 构建目录 — 指定生成构建文件的目录 — 像“施工文件放哪里” — `cmake -S . -B build` — 构建文件放进 `build/`。
-- `build` — `Build` — 构建目录名 — 存放 CMake 生成的构建系统 — 像“施工文件夹” — `cmake -S . -B build` — 避免污染源码目录。
-- `cmake --build build` — `CMake Build` — 执行构建 — 调用生成的构建系统完成编译 — 像“按图纸施工” — `cmake --build build` — 在 `build/` 中构建。
-- `--build` — `Build` — 构建选项 — 告诉 `cmake` 执行构建而不是生成 — 像“开始施工” — `cmake --build build` — 执行构建。
-- `./build/calculator` — `Build Calculator` — 运行构建出的程序 — 执行 `build/` 下的 `calculator` — 像“开走造好的车” — `./build/calculator` — 运行程序。
+2. `CMakeLists.txt` CMake 配置文件
+描述项目名称、语言、可执行目标、源文件、头文件路径等信息。包含一系列 `CMake` 命令，告诉 `CMake` 要生成什么。
+
+*注意：`CMakeLists.txt` 必须放在项目根目录或指定源码目录。*
+
+
 ---
 ---
 
@@ -194,6 +189,7 @@
 - 链接失败：发生在链接阶段，通常是函数未定义、库缺失。
 
 ---
+---
 
 # Task 2 完成 Makefile
 
@@ -233,5 +229,3 @@ clean:
 -> 本质上是通过修改时间戳，让 Make 重新注意到它并且再次编译。
 示例：
 `touch src/calculator.c` 触发 `Make` 重新编译该文件。
-
-
